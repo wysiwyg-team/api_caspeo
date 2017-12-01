@@ -1,41 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-</head>
-<body>
-<script src="https://code.jquery.com/jquery-2.2.4.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-</body>
-</html>
-
 <?php
-/*
-try{
-    $hostname = "DESKTOP-RA5UTA9";
-$port = "1433";
-$dbname = "test";
-$username = "DESKTOP-RA5UTA9";
-$password = "";
-$dbh = new PDO("sqlserv:Server=$hostname;Database=test", 'DESKTOP-RA5UTA9', '');
-echo '<h3>Connected to Database success</h3>';
-}
-catch (PDOException $e){
-    echo "Failed".$e->getMessage(). "\n";
-    exit;
-}
-$stmt = $dbh->prepare("select * from test");
-$stmt->execute();
-while($row = $stmt->fetch()){
-    print_r($row);
-}
-unset($dbh);
-unset($stmt);*/
+    namespace db;
+
+    class connect
+    {
+        public $dbServer;
+        public $dbName;
+        public $username;
+        public $password;
+
+        public function __construct()
+        {
+            $this->dbServer = "DESKTOP-RA5UTA9";
+            $this->dbName = "test";
+            $this->username = "NewAdminName";
+            $this->password = "ABCD";
+            $this->create();
+        }
+
+        public function create()
+        {
+            try{
+                $this->conn = new \PDO("sqlsrv:Server=$this->dbServer;Database=$this->dbName", $this->username,$this->password);
+            }
+            catch(\PDOException $e){
+                echo $e->getMessage();
+            }
+        }
+
+        public function getConn()
+        {
+            return $this->conn;
+        }
+
+        public function gettables()
+        {
+            $new= new connect();
+            $db=$new->getConn();
+
+            $tsql = "SELECT * FROM sys.Tables";
+            $getresults = $db->prepare($tsql);
+            $getresults->execute();
+           /* $results = $getresults->fetchAll(\PDO::FETCH_BOTH);
+            foreach($results as $row){
+                echo ("<div class='well text-center'>".$row[0]."<br>". "<a href='views.php?id=$row[0]' class='btn btn-primary btn-sm'>View Records</a> <button type='submit' class='btn btn-success btn-sm'>Sync</button>"."</div></br>");
+                
+                echo "</br>";
+            }*/
+            echo "Tables in database <i>". $this->dbName."</i>";
+            echo "</br>";
+                      
+            while($row = $getresults->fetch(\PDO::FETCH_NUM)){
+                echo ("<div class='well text-center'>".$row[0]."<br>". "<a href='views.php?id=$row[0]' class='btn btn-primary btn-sm'>View Records</a> <button type='submit' class='btn btn-success btn-sm'>Sync</button>"."</div></br>");
+            }
+            
+        }
+
+        public function getcolumns()
+        {
+            $new= new connect();
+            $db=$new->getConn();
+
+            $id=$_GET['id'];
+            //show column names in table
+         $results = $db->query("SELECT column_name FROM information_schema.columns WHERE table_name='$id'");
+         echo "<table class='table table-responsive table-bordered table-hover'><tr>";
+         while($rows = $results->fetch(\PDO::FETCH_NUM)){
+             echo "<th class='text-center'>$rows[0] </th>";
+         }
+
+        }
+
+        public function getrecords()
+        {
+            $new= new connect();
+            $db=$new->getConn();
+
+            $id=$_GET['id'];
+
+            
+///Find out number of columns ////
+$count=$db->prepare("select * from $id");
+$count->execute();
+//echo "Number of Columns : ". $count->columnCount();
+$no_of_columns=$count->columnCount(); // store it in a variable
+
+
+
+$data=$db->prepare("select *  from $id");
+$data->execute();
+
+while($resultt=$data->fetch(\PDO::FETCH_NUM)){
+echo "<tr>";
+for($j=0;$j<$no_of_columns;$j++){
+echo "<td>$resultt[$j]</td>";
+} // end of for loop displaying one row
+  echo "</tr>";    
+} // end of while loop
+echo "</table>";
+        }
+
+    }
+
+    /*    
 $dbServer = "DESKTOP-RA5UTA9";
 $dbName = "test";
 $username = "NewAdminName";
@@ -47,7 +113,7 @@ try{
 }
 catch(Exception $e){
     die(print_r($e->getMessage()));
-}
+}*/
 /*
 $tsql = "SELECT * FROM Customer";
 $getresults = $conn->prepare($tsql);
@@ -59,9 +125,5 @@ foreach($results as $row){
     echo "</br>";
 }
 */
-
-
-
-
 
 ?>

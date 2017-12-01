@@ -1,4 +1,16 @@
+<?php
+   namespace db;
 
+   
+   require 'conn.php'; //database connection
+
+
+   $new= new conn();
+      $db=$new->gettables();
+         
+   
+
+   ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,19 +23,8 @@
 </head>
 <body>
     <div class="container-fluid">
-   <?php
-      require 'conn.php'; //database connection
-   
-   $sqli="SHOW TABLES";
-$result =$dbh->query($sqli);
-echo "</br>";
-echo "<h4>Tables in database <i>".$dbName ."</i>:</h4>";
-echo "</br>";
-while($row = $result->fetch(PDO::FETCH_NUM)){
-    echo ("<div class='well text-center'>".$row[0]."<br>". "<a href='view.php?id=$row[0]' class='btn btn-primary btn-sm'>View Records</a> <button type='submit' class='btn btn-success btn-sm'>Sync</button>"."</div></br>");
-}
+  <?php
 
-echo "</br>";
 /*
 //show column names in table
 $results = $dbh->query("SHOW COLUMNS from articles");
